@@ -3,6 +3,7 @@ import * as math from "mathjs";
 import * as THREE from "three";
 import { ParametricGeometry } from "three/examples/jsm/geometries/ParametricGeometry";
 import { TrackballControls } from "three/examples/jsm/controls/TrackballControls";
+import * as numIntegration from "./numintegration";
 
 window.math = math;
 
@@ -24,6 +25,20 @@ console.log(code.evaluate({ z: math.complex(0, 1) }));
 const parsed = math.parse("z^2");
 
 console.log(parsed);
+
+// Numerical integration
+
+// const f = (x: number) => Math.pow(x, 7) - 12 * Math.pow(x, 3) + 4;
+
+const f = (x: number) => math.compile("x^7-12*x^3+4").evaluate({ x: x });
+
+const int = numIntegration.simpson(f, 0, 2, 1000);
+console.log("Integral: ", int); // -8
+
+//
+//
+//
+//
 
 // THREE tests
 

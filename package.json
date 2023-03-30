@@ -1,0 +1,37 @@
+{
+  "name": "minsurf",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "author": "Daniel Ramos",
+  "license": "MIT",
+  "targets": {
+    "frontend": {
+      "source": [
+        "src/html/index.html"
+      ],
+      "context": "browser",
+      "isLibrary": false,
+      "publicUrl": "."
+    }
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "parcel serve --dist-dir dist-dev --target 'frontend'",
+    "build": "parcel build --target 'frontend'"
+  },
+  "dependencies": {
+    "d3-selection": "^3.0.0",
+    "document-ready": "^2.0.2",
+    "mathjs": "^11.7.0",
+    "three": "^0.150.1"
+  },
+  "devDependencies": {
+    "@parcel/transformer-sass": "^2.8.3",
+    "@types/d3-selection": "^3.0.4",
+    "@types/document-ready": "^2.0.0",
+    "@types/three": "^0.150.0",
+    "parcel": "^2.8.3",
+    "prettier": "^2.8.4"
+  }
+}

@@ -3,7 +3,8 @@ import * as math from "mathjs";
 import * as THREE from "three";
 import { ParametricGeometry } from "three/examples/jsm/geometries/ParametricGeometry";
 import { TrackballControls } from "three/examples/jsm/controls/TrackballControls";
-import * as numIntegration from "./numintegration";
+import * as numIntegration from "./numIntegration";
+import { lineIntegralRe } from "./lineIntegral";
 
 window.math = math;
 
@@ -14,7 +15,7 @@ console.log(math.SQRT2);
 const res = math.evaluate(expr, scope).toString();
 console.log(res);
 
-const phi1 = (z: math.Complex) => math.pow(z, 2);
+const phi1 = (z: math.Complex) => math.pow(z, 2) as math.Complex;
 
 console.log(phi1(math.complex("i")));
 
@@ -38,6 +39,11 @@ console.log("Integral: ", int); // -8
 //
 //
 //
+// line integral
+
+const int2 = lineIntegralRe(phi1, math.complex(0, 0), math.complex(1, 1), 1000);
+console.log("Line integral: ", int2); // -0.6666 + 0.666 i
+
 //
 
 // THREE tests

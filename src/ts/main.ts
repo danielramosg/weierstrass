@@ -1,18 +1,20 @@
 // import Complex from "complex.js";
+import * as d3 from "d3-selection";
 import * as math from "mathjs";
 import * as THREE from "three";
 import { ParametricGeometry } from "three/examples/jsm/geometries/ParametricGeometry";
 import { TrackballControls } from "three/examples/jsm/controls/TrackballControls";
 import * as numIntegration from "./numIntegration";
 import { lineIntegralRe } from "./lineIntegral";
+import { renderKaTeX } from "./helpers";
 
 window.math = math;
 
 /** INPUT */
 
-// Enneper surface , in Weierstrass data
-const expr_f = "1";
-const expr_g = "z";
+// // Enneper surface , in Weierstrass data
+// const expr_f = "1";
+// const expr_g = "z";
 
 // // Scherk surface , in Weierstrass data // fails
 // const expr_f = "4/(1-z^4)";
@@ -22,29 +24,36 @@ const expr_g = "z";
 // const expr_f = "exp(z)";
 // const expr_g = "exp(-z)";
 
-// // Helicoid surface , in Weierstrass data
-// const expr_f = "exp(-pi/2*i +z)";
-// const expr_g = "exp(-z)";
+// Helicoid surface , in Weierstrass data
+const expr_f = "exp(-i pi/2 +z)";
+const expr_g = "exp(-z)";
 
 //
 //
 //
 /** COMPUTATIONS */
-const expr_phi1 = "0.5 * f * (1 - g^2)"
+const expr_phi1 = "f * (1 - g^2)"
   .replace("f", `(${expr_f})`)
   .replace("g", `(${expr_g})`);
 
-const expr_phi2 = "0.5 * i * f * (1 + g^2)"
+const expr_phi2 = "i * f * (1 + g^2)"
   .replace("f", `(${expr_f})`)
   .replace("g", `(${expr_g})`);
 
-const expr_phi3 = "f * g"
+const expr_phi3 = "2 * f * g"
   .replace("f", `(${expr_f})`)
   .replace("g", `(${expr_g})`);
 
 console.log(expr_phi1);
 console.log(expr_phi2);
 console.log(expr_phi3);
+
+const outputText = d3.select("#outputText");
+outputText.text(`
+    $$ f = ${math.parse(expr_f).toTex({ implicit: "hide" })} $$
+    $$ g = ${math.parse(expr_g).toTex({ implicit: "hide" })} $$
+    `);
+renderKaTeX(outputText.node() as HTMLElement);
 
 const phi1 = (z: math.Complex): math.Complex =>
   math.compile(expr_phi1).evaluate({ z: z });

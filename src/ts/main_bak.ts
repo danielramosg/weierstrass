@@ -8,129 +8,70 @@ import { lineIntegralRe } from "./lineIntegral";
 
 window.math = math;
 
-/** INPUT */
+const expr = "z^3";
+const scope = { z: math.complex(2, 3) };
 
-// Enneper surface , in Weierstrass data
-const expr_f = "1";
-const expr_g = "z";
+console.log(math.SQRT2);
+const res = math.evaluate(expr, scope).toString();
+console.log(res);
 
-// // Scherk surface , in Weierstrass data // fails
-// const expr_f = "4/(1-z^4)";
-// const expr_g = "i*z";
+const phi1 = (z: math.Complex) => math.pow(z, 2) as math.Complex;
 
-// // Catenoid surface , in Weierstrass data
-// const expr_f = "exp(z)";
-// const expr_g = "exp(-z)";
+console.log(phi1(math.complex("i")));
 
-// // Helicoid surface , in Weierstrass data
-// const expr_f = "exp(-pi/2*i +z)";
-// const expr_g = "exp(-z)";
+const code = math.compile("z^2");
 
-//
-//
-//
-/** COMPUTATIONS */
-const expr_phi1 = "0.5 * f * (1 - g^2)"
-  .replace("f", `(${expr_f})`)
-  .replace("g", `(${expr_g})`);
+console.log(code.evaluate({ z: math.complex(0, 1) }));
 
-const expr_phi2 = "0.5 * i * f * (1 + g^2)"
-  .replace("f", `(${expr_f})`)
-  .replace("g", `(${expr_g})`);
+const parsed = math.parse("z^2");
 
-const expr_phi3 = "f * g"
-  .replace("f", `(${expr_f})`)
-  .replace("g", `(${expr_g})`);
+console.log(parsed);
 
-console.log(expr_phi1);
-console.log(expr_phi2);
-console.log(expr_phi3);
+// Numerical integration
 
-const phi1 = (z: math.Complex): math.Complex =>
-  math.compile(expr_phi1).evaluate({ z: z });
+// const f = (x: number) => Math.pow(x, 7) - 12 * Math.pow(x, 3) + 4;
 
-const phi2 = (z: math.Complex): math.Complex =>
-  math.compile(expr_phi2).evaluate({ z: z });
+const f = (x: number) => math.compile("x^7-12*x^3+4").evaluate({ x: x });
 
-const phi3 = (z: math.Complex): math.Complex =>
-  math.compile(expr_phi3).evaluate({ z: z });
-
-console.log("functions compiled");
-const X1 = (zeta: math.Complex): number =>
-  lineIntegralRe(phi1, math.complex(0, 0), zeta, 10);
-
-const X2 = (zeta: math.Complex): number =>
-  lineIntegralRe(phi2, math.complex(0, 0), zeta, 10);
-
-const X3 = (zeta: math.Complex): number =>
-  lineIntegralRe(phi3, math.complex(0, 0), zeta, 10);
+const int = numIntegration.simpson(f, 0, 2, 1000);
+console.log("Integral: ", int); // -8
 
 //
 //
 //
+// line integral
+
+const int2 = lineIntegralRe(phi1, math.complex(0, 0), math.complex(1, 1), 1000);
+console.log("Line integral: ", int2); // -0.6666 + 0.666 i
+
 //
-// THREE
+
+// THREE tests
 
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 
-// function surfaceFunction(u: number, v: number, vector: THREE.Vector3) {
-//   let x: number, y: number, z: number;
-//   // Coordinates for a point on the surface,
-//   // calculated from u,v, where u and v
-//   // range from 0.0 to 1.0.
-
-//   x = 20 * (u - 0.5); // x and z range from -10 to 10
-//   z = 20 * (v - 0.5);
-//   y = 2 * (Math.sin(x / 2) * Math.cos(z));
-//   vector.set(x, y, z);
-// }
-
-function surfaceFunctionCartesianDomain(
-  U: number,
-  V: number,
-  vector: THREE.Vector3
-) {
+function surfaceFunction(u: number, v: number, vector: THREE.Vector3) {
   let x: number, y: number, z: number;
-  const s = 2;
+  // Coordinates for a point on the surface,
+  // calculated from u,v, where u and v
+  // range from 0.0 to 1.0.
+
+  x = 20 * (u - 0.5); // x and z range from -10 to 10
+  z = 20 * (v - 0.5);
+  y = 2 * (Math.sin(x / 2) * Math.cos(z));
+  vector.set(x, y, z);
+}
+
+function enneper(U: number, V: number, vector: THREE.Vector3) {
+  const s = 3;
   const u = s * (U - 0.5);
   const v = s * (V - 0.5);
-  const w = math.complex(u, v);
 
-  x = X1(w);
-  y = X2(w);
-  z = X3(w);
+  let x = (1 / 3) * u * (1 - (1 / 3) * u * u + v * v);
+  let y = (1 / 3) * v * (1 - (1 / 3) * v * v + u * u);
+  let z = (1 / 3) * (u * u - v * v);
   vector.set(x, y, z);
 }
-
-function surfaceFunctionPolarDomain(
-  R: number,
-  THETA: number,
-  vector: THREE.Vector3
-) {
-  let x: number, y: number, z: number;
-  const radius = 3;
-
-  const r = radius * R;
-  const theta = 2 * Math.PI * THETA;
-
-  const w = math.complex(r * Math.cos(theta), r * Math.sin(theta));
-
-  x = X1(w);
-  y = X2(w);
-  z = X3(w);
-  vector.set(x, y, z);
-}
-
-// function enneper(U: number, V: number, vector: THREE.Vector3) {
-//   const s = 3;
-//   const u = s * (U - 0.5);
-//   const v = s * (V - 0.5);
-
-//   let x = (1 / 3) * u * (1 - (1 / 3) * u * u + v * v);
-//   let y = (1 / 3) * v * (1 - (1 / 3) * v * v + u * u);
-//   let z = (1 / 3) * (u * u - v * v);
-//   vector.set(x, y, z);
-// }
 
 /*  Creates a scene to show a parametric surface.  The surface is defined by the
  *  previous function, surfaceEquation().
@@ -158,20 +99,12 @@ scene.add(light2);
 /* Create the geometry. The 2nd and 3rd parameters are the number of subdivisions in
  * the u and v directions, respectively.
  */
-
-console.log("Start calculating the surface mesh");
-let surfaceGeometry = new ParametricGeometry(
-  surfaceFunctionCartesianDomain,
-  32,
-  32
-);
-console.log("Finished calculating the surface mesh");
+let surfaceGeometry = new ParametricGeometry(enneper, 64, 64);
 
 const material = new THREE.MeshPhongMaterial({
   color: "white",
   specular: 0x080808,
   side: THREE.DoubleSide,
-  //   wireframe: true,
 });
 
 // const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });

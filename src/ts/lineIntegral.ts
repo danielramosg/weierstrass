@@ -1,11 +1,12 @@
 import * as math from "mathjs";
-import { simpson } from "./numIntegration";
+// import { simpson } from "./numIntegration";
+import { gaussQuadrature } from "./gaussQuadrature";
 
 function lineIntegralRe(
   f: (z: math.Complex) => math.Complex,
   a: math.Complex,
   b: math.Complex,
-  N: number
+  order: 2 | 4 | 8 | 16 | 64 = 16
 ): number {
   // integrate a complex function along the segment that joins a and b.
 
@@ -17,7 +18,8 @@ function lineIntegralRe(
     return g.re;
   };
 
-  return simpson(fRe, 0, 1, N);
+  //   return simpson(fRe, 0, 1, N);
+  return gaussQuadrature(fRe, [0, 1], order);
 }
 
 export { lineIntegralRe };

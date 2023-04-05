@@ -56,7 +56,7 @@ export default class World implements WorldIF {
   surfaceGeometry: THREE.BufferGeometry;
   surfaceMesh: THREE.Mesh;
 
-  numSamplePoints = 16;
+  numSamplePoints = 32;
 
   constructor(canvas: HTMLCanvasElement) {
     this.scene = new THREE.Scene();
@@ -113,7 +113,8 @@ export default class World implements WorldIF {
 
     const surfaceFunction = createSurfaceFunctionCartesian(F);
 
-    console.log("Start calculating the surface mesh");
+    console.log("Started calculating the surface mesh");
+    console.time("mesh");
 
     this.surfaceGeometry = new ParametricGeometry(
       surfaceFunction,
@@ -122,6 +123,7 @@ export default class World implements WorldIF {
     );
 
     console.log("Finished calculating the surface mesh");
+    console.timeEnd("mesh");
 
     this.surfaceMesh = new THREE.Mesh(this.surfaceGeometry, this.material);
 

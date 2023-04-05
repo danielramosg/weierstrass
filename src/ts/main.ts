@@ -1,9 +1,6 @@
 // import Complex from "complex.js";
 import * as d3 from "d3-selection";
 import * as math from "mathjs";
-import * as THREE from "three";
-import { ParametricGeometry } from "three/examples/jsm/geometries/ParametricGeometry";
-import { TrackballControls } from "three/examples/jsm/controls/TrackballControls";
 import { lineIntegralRe } from "./lineIntegral";
 import { renderKaTeX } from "./helpers";
 import World from "./world";
@@ -52,7 +49,6 @@ d3.select("#sample-surf").on("change", (ev) => {
   if (choiceObj) {
     input_f.value = choiceObj.expr_f;
     input_g.value = choiceObj.expr_g;
-    console.log(expr_f);
   }
   runVisualization();
 });
@@ -60,6 +56,12 @@ d3.select("#sample-surf").on("change", (ev) => {
 function runVisualization() {
   expr_f = input_f.value;
   expr_g = input_g.value;
+
+  if (expr_f === "" || expr_g === "") {
+    console.log("empty data");
+    world.clearWorld();
+    return;
+  }
   processWeierstrassData();
   displayKaTeX();
   world.createWorld([X1, X2, X3]);
@@ -109,20 +111,17 @@ function processWeierstrassData() {
     .replace("f", `(${expr_f})`)
     .replace("g", `(${expr_g})`);
 
-  console.log(expr_phi1);
-  console.log(expr_phi2);
-  console.log(expr_phi3);
+  //   console.log(expr_phi1);
+  //   console.log(expr_phi2);
+  //   console.log(expr_phi3);
 
   const cfun_phi1 = math.compile(expr_phi1);
-
   const phi1 = (z: math.Complex): math.Complex => cfun_phi1.evaluate({ z: z });
 
   const cfun_phi2 = math.compile(expr_phi2);
-
   const phi2 = (z: math.Complex): math.Complex => cfun_phi2.evaluate({ z: z });
 
   const cfun_phi3 = math.compile(expr_phi3);
-
   const phi3 = (z: math.Complex): math.Complex => cfun_phi3.evaluate({ z: z });
 
   X1 = (zeta: math.Complex): number =>
@@ -135,6 +134,7 @@ function processWeierstrassData() {
     lineIntegralRe(phi3, math.complex(0, 0), zeta, gaussIntegrationOrder);
 }
 
-expr_f = sample_surfaces[0].expr_f;
-expr_g = sample_surfaces[0].expr_g;
-processWeierstrassData();
+// expr_f = sample_surfaces[0].expr_f;
+// expr_g = sample_surfaces[0].expr_g;
+
+runVisualization();

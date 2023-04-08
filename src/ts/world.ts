@@ -3,14 +3,22 @@ import { ParametricGeometry } from "three/examples/jsm/geometries/ParametricGeom
 import { TrackballControls } from "three/examples/jsm/controls/TrackballControls";
 import { complex } from "mathjs";
 
-function createSurfaceFunctionCartesian(F: ((zeta: math.Complex) => number)[]) {
+const clamp = (x: number) => Math.min(Math.max(x, -1), 1);
+
+function createSurfaceFunctionCartesian(
+  F: ((zeta: math.Complex) => number)[],
+  URange: number[],
+  VRange: number[]
+) {
   return function (U: number, V: number, vector: THREE.Vector3) {
     let x: number, y: number, z: number;
-    const s = 2;
-    const u = s * (U - 0.5);
-    const v = s * (V - 0.5);
+    const u = URange[0] + U * (URange[1] - URange[0]);
+    const v = VRange[0] + V * (VRange[1] - VRange[0]);
     const w = complex(u, v);
 
+    // x = clamp(F[0](w));
+    // y = clamp(F[1](w));
+    // z = clamp(F[2](w));
     x = F[0](w);
     y = F[1](w);
     z = F[2](w);
@@ -18,30 +26,36 @@ function createSurfaceFunctionCartesian(F: ((zeta: math.Complex) => number)[]) {
   };
 }
 
-//   function surfaceFunctionPolarDomain(
-//     R: number,
-//     THETA: number,
-//     vector: THREE.Vector3
-//   ) {
-//     let x: number, y: number, z: number;
-//     const radius = 3;
+function createSurfaceFunctionPolar(
+  F: ((zeta: math.Complex) => number)[],
+  RRange: number[],
+  THETARange: number[]
+) {
+  return function (R: number, THETA: number, vector: THREE.Vector3) {
+    let x: number, y: number, z: number;
+    const r = RRange[0] + R * (RRange[1] - RRange[0]);
+    const theta = THETARange[0] + THETA * (THETARange[1] - THETARange[0]);
+    const w = complex(r * Math.cos(theta), r * Math.sin(theta));
 
-//     const r = radius * R;
-//     const theta = 2 * Math.PI * THETA;
-
-//     const w = math.complex(r * Math.cos(theta), r * Math.sin(theta));
-
-//     x = X1(w);
-//     y = X2(w);
-//     z = X3(w);
-//     vector.set(x, y, z);
-//   }
+    // x = clamp(F[0](w));
+    // y = clamp(F[1](w));
+    // z = clamp(F[2](w));
+    x = F[0](w);
+    y = F[1](w);
+    z = F[2](w);
+    vector.set(x, y, z);
+  };
+}
 
 interface WorldIF {
   scene: THREE.Scene;
   camera: THREE.Camera;
   renderer: THREE.Renderer;
-  createWorld(F: ((zeta: math.Complex) => number)[]): void;
+  createWorld(
+    F: ((zeta: math.Complex) => number)[],
+    uRange: number[],
+    vRange: number[]
+  ): void;
   clearWorld(): void;
 }
 
@@ -101,17 +115,23 @@ export default class World implements WorldIF {
     this.renderer.setClearColor("lightblue");
   }
 
-  createWorld = (F: ((zeta: math.Complex) => number)[]) => {
+  createWorld = (
+    F: ((zeta: math.Complex) => number)[],
+    uRange: number[],
+    vRange: number[]
+  ) => {
     if (this.surfaceGeometry && this.surfaceMesh) {
+      console.log(this.scene);
       this.scene.remove(this.surfaceMesh);
       this.surfaceGeometry.dispose();
+      console.log("disposed");
     }
 
     /* Create the geometry. The 2nd and 3rd parameters are the number of subdivisions in
      * the u and v directions, respectively.
      */
 
-    const surfaceFunction = createSurfaceFunctionCartesian(F);
+    const surfaceFunction = createSurfaceFunctionCartesian(F, uRange, vRange);
 
     console.log("Started calculating the surface mesh");
     console.time("mesh");

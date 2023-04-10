@@ -171,4 +171,41 @@ export default class World implements WorldIF {
     }
     this.renderer.render(this.scene, this.camera);
   };
+
+  createWorldFromFunction = (
+    F: (u: number, v: number, vector: THREE.Vector3) => void
+  ) => {
+    if (this.surfaceGeometry && this.surfaceMesh) {
+      console.log(this.scene);
+      this.scene.remove(this.surfaceMesh);
+      this.surfaceGeometry.dispose();
+      console.log("disposed");
+    }
+    console.log("Started calculating the surface mesh");
+    console.time("mesh");
+    this.surfaceGeometry = new ParametricGeometry(
+      F,
+      this.numSamplePoints,
+      this.numSamplePoints
+    );
+    console.log("Finished calculating the surface mesh");
+    console.timeEnd("mesh");
+    this.surfaceMesh = new THREE.Mesh(this.surfaceGeometry, this.material);
+
+    this.scene.add(this.surfaceMesh);
+
+    this.renderer.render(this.scene, this.camera);
+
+    const animate = () => {
+      requestAnimationFrame(animate);
+      this.controls.update();
+
+      //   surface.rotation.x += 0.01;
+      //   surface.rotation.y += 0.01;
+
+      this.renderer.render(this.scene, this.camera);
+    };
+
+    animate();
+  };
 }

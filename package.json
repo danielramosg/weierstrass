@@ -8,7 +8,9 @@
   "targets": {
     "frontend": {
       "source": [
-        "src/html/index.html"
+        "src/html/index.html",
+        "src/html/bezier.html",
+        "src/html/complexCamera.html"
       ],
       "context": "browser",
       "isLibrary": false,
@@ -23,6 +25,7 @@
   "dependencies": {
     "d3-selection": "^3.0.0",
     "document-ready": "^2.0.2",
+    "gpu.js": "^2.16.0",
     "katex": "^0.16.4",
     "mathjs": "^11.7.0",
     "three": "^0.150.1"
@@ -35,5 +38,12 @@
     "@types/three": "^0.150.0",
     "parcel": "^2.8.3",
     "prettier": "^2.8.4"
+  },
+  "overrides": {
+    "gpu.js": {
+      "gl": {
+        "node-gyp": ">7.0.0"
+      }
+    }
   }
 }

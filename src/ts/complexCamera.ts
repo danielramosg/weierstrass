@@ -7,12 +7,13 @@ import {
 } from "gpu.js";
 import { complex } from "mathjs";
 
+window.math = math;
 /** Set up video stream */
 
 var videoelement = document.getElementById("videoelement") as HTMLVideoElement;
 var streamContraints = {
   audio: false,
-  video: { width: 320, height: 180 },
+  video: { width: 400, height: 400 },
 };
 
 if (videoelement) {
@@ -53,7 +54,6 @@ function F(
   const im = this.thread.y / h - 0.5;
 
   const fz = cfun.evaluate({ z: complex(re, im) });
-
   const x = clamp(Math.floor((fz.re + 0.5) * w), 0, w - 1);
   const y = clamp(Math.floor((fz.im + 0.5) * h), 0, h - 1);
 
@@ -61,22 +61,24 @@ function F(
   this.color(pixel[0], pixel[1], pixel[2], pixel[3]);
 }
 
+// console.log(cfun.evaluate({ z: complex(2, 1) }));
 /** Set up GPU video transformation */
 
 const gpu = new GPU();
 
 const kernel = gpu
   .createKernel(function (videoFrame) {
-    function add(c0, c1) {
-      return [c0[0] + c1[0], c0[1] + c1[1]];
+    function add(z: number[], w: number[]) {
+      return [z[0] + w[0], z[1] + w[1]];
     }
 
-    function mult(c0, c1) {
-      return [c0[0] * c1[0] - c0[1] * c1[1], c0[0] * c1[0] + c0[1] * c1[1]];
+    function mult(z: number[], w: number[]) {
+      return [z[0] * w[0] - z[1] * w[1], z[0] * w[1] + z[1] * w[0]];
     }
 
-    function f(c) {
-      return add(mult(c, c), c);
+    function f(z: number[]) {
+      // return add(mult(z, z), z);
+      return mult(z, z);
     }
 
     function myClamp(x, l, u) {
@@ -86,21 +88,35 @@ const kernel = gpu
     const w = this.constants.w as number;
     const h = this.constants.h as number;
 
-    const re = this.thread.x / w - 0.5;
-    const im = this.thread.y / h - 0.5;
+    const scale = 2;
+    const re = (this.thread.x / w - 0.5) * 2 * scale;
+    const im = (this.thread.y / h - 0.5) * 2 * scale;
+
+    // // let fz = cfun.evaluate({ z: complex(re, im) }) as math.Complex;
+    // // let fz = complex(re, im);
 
     let z = [re, im];
     let fz = f(z);
 
-    const x = myClamp(Math.floor((fz[0] + 0.5) * w), 0, w - 1);
-    const y = myClamp(Math.floor((fz[1] + 0.5) * h), 0, h - 1);
+    // const x = Math.floor(fz[0] / 2 / scale + 0.5) * w;
+    // const y = Math.floor(fz[1] / 2 / scale + 0.5) * h;
 
-    const pixel = videoFrame[y][x];
-    this.color(pixel[0], pixel[1], pixel[2], pixel[3]);
+    const x = myClamp(Math.floor((fz[0] / 2 / scale + 0.5) * w), 0, w - 1);
+    const y = myClamp(Math.floor((fz[1] / 2 / scale + 0.5) * h), 0, h - 1);
+
+    if (x === w - 1 || x === 0 || y === h - 1 || y === 0) {
+      this.color(0, 0, 0, 0);
+    } else {
+      const pixel = videoFrame[x][y];
+      this.color(pixel[0], pixel[1], pixel[2], pixel[3]);
+    }
+
+    // const pixel = videoFrame[x][y];
+    // this.color(pixel[0], pixel[1], pixel[2], pixel[3]);
   })
   .setGraphical(true)
-  .setConstants({ w: 320, h: 180 })
-  .setOutput([320, 180]);
+  .setConstants({ w: 400, h: 400 })
+  .setOutput([400, 400]);
 
 document.querySelector(".container")?.appendChild(kernel.canvas);
 const loop = () => {

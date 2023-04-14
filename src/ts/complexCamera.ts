@@ -43,6 +43,12 @@ const expr = "z^2";
 const cfun = math.compile(expr); // compile the expression into callable JS function
 // const F = (z: math.Complex): math.Complex => cfun.evaluate({ z: z }); //
 
+const FF = (z: number[]): number[] => {
+  const fz = cfun.evaluate({ z: math.complex(z[0], z[1]) });
+  return [fz.re, fz.im];
+};
+
+window.FF = FF;
 function F(
   this: IKernelFunctionThis<IConstantsThis>,
   videoFrame: ThreadKernelVariable
@@ -65,6 +71,8 @@ function F(
 /** Set up GPU video transformation */
 
 const gpu = new GPU();
+
+// gpu.addFunction(FF);
 
 const kernel = gpu
   .createKernel(function (videoFrame) {

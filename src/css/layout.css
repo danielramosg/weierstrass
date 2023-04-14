@@ -1,0 +1,32 @@
+body {
+    font-family: Verdana, sans-serif;
+}
+
+#container{
+    display: grid;
+    margin: 1em;
+    gap: 1em;
+    /* grid-template-rows: 4em fit-content(0) auto 10em; */
+  grid-template-areas:
+    'header header header'
+    'canvas canvas info'
+    'controls  output info ';
+}
+
+#canvas {
+    grid-area: canvas;
+}
+#mainTitle {
+    grid-area: header;
+    text-align: center;
+}
+#controls{
+    grid-area: controls;
+}
+#info{
+    grid-area: info;
+    max-width: 800px;
+}
+#output{
+    grid-area: output;
+}

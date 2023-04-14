@@ -80,6 +80,7 @@ const sample_surfaces = [
 ];
 
 /** UI SETUP */
+renderKaTeX(document.getElementById("info"));
 
 const input_f = d3.select("#expr-f").node() as HTMLInputElement;
 const input_g = d3.select("#expr-g").node() as HTMLInputElement;
@@ -130,7 +131,7 @@ function runVisualization() {
     return;
   }
   processWeierstrassData();
-  displayKaTeX();
+  displayKaTeXExpr();
   world.createWorld([X1, X2, X3], uRange, vRange);
 }
 
@@ -138,7 +139,7 @@ d3.selectAll("#expr-f, #expr-g").on("input", () => {
   d3.select("#sample-surf").select("option").attr("selected", "selected");
   expr_f = "";
   expr_g = "";
-  clearKaTeX();
+  clearKaTeXExpr();
   world.clearWorld();
   //   console.log("inputed");
 });
@@ -146,7 +147,7 @@ d3.selectAll("#expr-f, #expr-g").on("input", () => {
 d3.selectAll("#expr-f, #expr-g").on("change", runVisualization);
 d3.select("#runButton").on("click", runVisualization);
 
-function displayKaTeX() {
+function displayKaTeXExpr() {
   const outputText = d3.select("#outputText");
   outputText.text(`
         $$ f = ${math.parse(expr_f).toTex({ implicit: "hide" })} $$
@@ -154,7 +155,7 @@ function displayKaTeX() {
         `);
   renderKaTeX(outputText.node() as HTMLElement);
 }
-function clearKaTeX() {
+function clearKaTeXExpr() {
   const outputText = d3.select("#outputText");
   outputText.text("");
 }

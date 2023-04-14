@@ -1,0 +1,2 @@
+body{font-family:Verdana,sans-serif}#container{grid-template-areas:"header header header""canvas canvas info""controls output info";gap:1em;margin:1em;display:grid}#canvas{grid-area:canvas}#mainTitle{text-align:center;grid-area:header}#controls{grid-area:controls}#info{max-width:800px;grid-area:info}#output{grid-area:output}
+/*# sourceMappingURL=index.26a0e337.css.map */
